@@ -1,26 +1,33 @@
 const jwt = require("jsonwebtoken");
-const {JWT_SECRET} = require("../config");
+const { JWT_SECRET } = require("../config");
 
-// Middleware for handling auth
 function adminMiddleware(req, res, next) {
-    const token = req.headers.authorization; // bearer token
-    const words = token.split(" "); // ["Bearer", "token"]
-    const jwtToken = words[1]; // token
+    const tokenHeader = req.headers.authorization;
+
+    if (!tokenHeader) {
+        return res.status(401).json({
+            msg: "Unauthorized - Missing Authorization Header",
+        });
+    }
+
+    const tokenWords = tokenHeader.split(" ");
+    const jwtToken = tokenWords[1];
+
     try {
-        const decodedValue = jwt.verify(jwtToken, JWT_SECRET);
-        if (decodedValue.username) {
+        const decoded = jwt.verify(jwtToken, JWT_SECRET);
+        
+        if (decoded.username) {
             next();
         } else {
-            res.status(403).json({
-                msg: "You are not authenticated"
-            })
+            res.status(401).json({
+                msg: "Unauthorized - Invalid Token",
+            });
         }
-    } catch(e) {
-        res.json({
-            msg: "Incorrect inputs"
-        })
+    } catch (error) {
+        res.status(401).json({
+            msg: "Unauthorized - Invalid Token",
+        });
     }
-    
 }
 
 module.exports = adminMiddleware;

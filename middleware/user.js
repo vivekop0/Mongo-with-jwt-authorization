@@ -1,19 +1,16 @@
-const {JWT_SECRET} = require("../config");
-const jwt = require("jsonwebtoken");
-
+const jwt = require("jsonwebtoken")
+const {JWT_SECRET} =require("../config")
 function userMiddleware(req, res, next) {
+
     const token = req.headers.authorization;
     const words = token.split(" ");
-    const jwtToken = words[1];
-    const decodedValue = jwt.verify(jwtToken, JWT_SECRET);
-
-    if (decodedValue.username) {    
-        req.username = decodedValue.username;
-        req.randomData = "Adsadsadsadssd";
-        next();
-    } else {
-        res.status(403).json({
-            msg: "You are not authenticated"
+    const jwtToken = words[1]
+    const decoded = jwt.verify(jwtToken,JWT_SECRET)
+   if(decoded.username){
+        next()
+    }else{
+        res.status(404).json({
+            msg:"not found"
         })
     }
 }
